@@ -1,0 +1,18 @@
+{
+  "name": "three-sac",
+  "version": "1.0.0",
+  "description": "three.js-base",
+  "main": "ui-three-base.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "base"
+  ],
+  "author": "sac",
+  "license": "ISC",
+  "dependencies": {
+    "stats.js": "^0.17.0",
+    "three": "^0.150.1"
+  }
+}

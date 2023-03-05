@@ -1,0 +1,1 @@
+npm i https://github.com/user_name/node_project_name

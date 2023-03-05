@@ -1,1 +1,1 @@
-npm i https://github.com/user_name/node_project_name
+this is a basic toolkit to recycle three.js runtime configurations.

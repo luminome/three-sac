@@ -2,9 +2,11 @@
   "name": "three-sac",
   "version": "1.0.0",
   "description": "three.js-base",
-  "main": "ui-three-base.js",
+  "source": "./dev/src/index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-watch": "nodemon ./dev/server/index.js",
+    "dev-build": "parcel build ./dev/index.html --public-url ./ --dist-dir ./dev/dist"
   },
   "keywords": [
     "base"
@@ -14,5 +16,11 @@
   "dependencies": {
     "stats.js": "^0.17.0",
     "three": "^0.150.1"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.21",
+    "parcel": "^2.8.3"
   }
 }

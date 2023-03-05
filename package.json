@@ -2,16 +2,23 @@
   "name": "three-sac",
   "version": "1.0.0",
   "description": "three.js-base",
+  "main": "three-sac.js",
+  "targets": {
+    "main": false
+  },
   "source": "./dev/src/index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-watch": "nodemon ./dev/server/index.js",
-    "dev-build": "parcel build ./dev/index.html --public-url ./ --dist-dir ./dev/dist"
+    "build-watch": "parcel watch ./dev/index.html --dist-dir ./dev/dist",
+    "dev": "concurrently --kill-others \"npm run start-watch\" \"npm run build-watch\"",
+    "build": "rm -rf ./dev/dist/* && parcel build ./dev/index.html --public-url ./ --dist-dir ./dev/dist"
   },
   "keywords": [
     "base"
   ],
   "author": "sac",
+  "git": "https://github.com/luminome/three-sac",
   "license": "ISC",
   "dependencies": {
     "stats.js": "^0.17.0",
@@ -22,5 +29,8 @@
     "express": "^4.18.2",
     "nodemon": "^2.0.21",
     "parcel": "^2.8.3"
+  },
+  "nodemonConfig": {
+    "ext": "js, html, css"
   }
 }

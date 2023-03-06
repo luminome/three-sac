@@ -35,5 +35,5 @@ async function uiBasicLoader(resource_obj_list, prog_callback=null) {
 	return resource_obj_list;
 }
 
-export {uiBasicLoader};
+export default uiBasicLoader;
 // as default

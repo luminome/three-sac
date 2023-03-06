@@ -2,15 +2,6 @@ import * as THREE from 'three';
 import * as util from './ui-util';
 const util_c = new THREE.Color();
 
-const vc = {
-    a: new THREE.Vector3(0, 0, 0),
-    b: new THREE.Vector3(0, 0, 0),
-    c: new THREE.Vector3(0, 0, 0),
-    d: new THREE.Vector3(0, 0, 0),
-    e: new THREE.Vector3(0, 0, 0)
-}
-
-
 const elements = {
     /**
     * @param {Object} params The Object
@@ -275,22 +266,22 @@ const elements = {
         return plush_mesh;
     },
     /**
-    * @param {Number} radius The Object
+    * @param {Number} radius The dashed_halo_marker radius
+    * @param {Number} color The dashed_halo_marker color
     */
-    dashed_halo(radius) {
+    dashed_circle_marker(radius, color= 0xFFFFFF) {
         const curve = new THREE.EllipseCurve(
             0, 0,            // ax, aY
-            radius, radius,           // xRadius, yRadius
+            radius, radius,  // xRadius, yRadius
             0, 2 * Math.PI,  // aStartAngle, aEndAngle
             true,            // aClockwise
-            0                 // aRotation
+            0                // aRotation
         );
 
         curve.updateArcLengths();
 
         const points = curve.getPoints(201);
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
         const material = new THREE.LineDashedMaterial({
             color: 0x666666,
             scale: 1,
@@ -298,18 +289,90 @@ const elements = {
             gapSize: radius * 0.1,
         });
 
-        // Create the final object to add to the scene
         const line = new THREE.Line(geometry, material);
         line.userData.radius = radius;
         line.computeLineDistances();
-        line.rotateX(Math.PI / 2);
         return line;
+    },
+    /**
+    * @param {Number} scale The hexagonal_shape_marker scale
+    * @param {Number} color The hexagonal_shape_marker color
+    */
+    hexagonal_shape_marker(scale = 1.0, color= 0xFFFFFF) {
+        const v = new Float32Array(21);
+        let int = ((Math.PI * 2) / 6);
+        for (let i = 0; i < v.length; i += 3) {
+            v[i] = (Math.cos((i / 3) * int)) * scale;
+            v[i + 1] = (Math.sin((i / 3) * int)) * scale;
+            v[i + 2] = 0.0;
+        }
+        const geometry = new THREE.BufferGeometry();
+        const material = new THREE.MeshBasicMaterial({color: color});
+        geometry.setAttribute('position', new THREE.BufferAttribute(v, 3));
+        geometry.setIndex([0, 1, 2, 2, 3, 0, 3, 4, 5, 5, 0, 3]);
+        return new THREE.Mesh( geometry, material );
+    },
+    /**
+    * @param {Number} color The ray color
+    */
+    ray(color= 0xFFFFFF){
+        const pts = [
+            0,0,0,
+            0,0,0
+        ];
+        const line_pos = Float32Array.from(pts);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(line_pos, 3));
+        const material = new THREE.LineBasicMaterial({
+            color: color
+        });
+        return new THREE.Line(geometry, material);
+    },
+
+    ray_special(){
+        const vertices = [
+            -1,0,0,
+            1,0,0,
+        ]
+        /**
+        * @param {Number} color The ray_special color
+        */
+        function init(color= 0xFFFFFF){
+            const material = new THREE.LineBasicMaterial({color: color});
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array(R.vertices), 3 ) );
+            R.ray = new THREE.LineSegments( geometry, material );
+            R.object.add(R.ray);
+            return R;
+        }
+
+        function set(a,b){
+            R.vectors.a.copy(a);
+            R.vectors.b.copy(b);
+            util.set_buffer_at_index(R.ray.geometry.attributes.position.array, 0, a.toArray());
+            util.set_buffer_at_index(R.ray.geometry.attributes.position.array, 1, b.toArray());
+            R.ray.geometry.attributes.position.needsUpdate = true;
+            R.ray.geometry.computeBoundingSphere();
+        }
+
+        const R = {
+            vectors:{
+                a:new THREE.Vector3(),
+                b:new THREE.Vector3()
+            },
+            ray: null,
+            object: new THREE.Object3D(),
+            vertices: vertices,
+            init,
+            set
+        }
+
+        return R
     },
     dom_label(){
         const base_css = `
             position:absolute;
         `;
-
         /**
         * @param {Object} dom_target The Object
         * @param {Object} params The Object

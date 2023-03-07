@@ -1,5 +1,5 @@
 const config = {
-    stats: false,
+    stats: true,
     test: false,
     view: {
         colors:{
@@ -14,7 +14,7 @@ const config = {
             grid_marks:{
                 on: true,
                 target: 'model',
-                distance: 40.0,
+                distance: 20.0,
                 width: 20,
                 pitch: 2.0,
                 shape_length: 5.0,
@@ -27,7 +27,7 @@ const config = {
                 target: 'scene',
                 color: 0x333333,
                 opacity: 0.9,
-                distance: 40.0,
+                distance: 20.0,
             },
             helper_grid:{
                 on: true,

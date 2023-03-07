@@ -1,10 +1,16 @@
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+
 import {dragControls} from './evt-mouse-touch.js';
 import {keyControls} from './evt-keys.js';
+import * as shaders from './ui-shaders.js';
 import Stats from 'stats.js';
 
 
-let renderer, layer_one, stats
+let renderer, overlay_composer, layer_one, layer_two, stats
 
 const util_v = new THREE.Vector3();
 const y_up = new THREE.Vector3(0, 1, 0);
@@ -337,6 +343,29 @@ class LayerSimple {
 		this.scene = new THREE.Scene();
 	}
 }
+class LayerComplex {
+    constructor(camera) {
+        this.scene = new THREE.Scene();
+        this.renderPass = new RenderPass(this.scene, camera);
+        this.renderPass.clear = true;
+        this.renderPass.autoClear = false;
+        this.renderPass.clearDepth = false;
+        this.renderPass.renderToScreen = true;
+        this.renderPass.clearAlpha = 0.0;
+        this.renderPass.clearColor = 0x00FF00;
+
+        this.shaderPass = new ShaderPass( shaders.overlay );
+        this.shaderPass.material.uniforms[ 'alpha' ].value = 0.5;
+        this.shaderPass.renderToScreen = true;
+        this.shaderPass.autoClear = true;
+        this.shaderPass.clear = true;
+        // this.shaderPass.clearAlpha = 0.0;
+        // this.shaderPass.clearColor = 0x00FF00;
+        this.shaderPass.material.transparent = true;
+        this.shaderPass.material.blending = THREE.AdditiveBlending;
+    }
+}
+
 const visibleAtZDepth = (depth, camera) => {
     // compensate for cameras not positioned at z=0
     const cameraOffset = camera.position.z;
@@ -360,12 +389,14 @@ function init(){
         antialias: true,
         physicallyCorrectLights: true,
         alpha: false,
-        stencilBuffer: false
+        stencilBuffer: false,
+        // localClippingEnabled: true
     });
 
+    renderer.localClippingEnabled = true;
     controls.cam.run();
     resize();
-    renderer.setPixelRatio(1.5);
+    renderer.setPixelRatio(1);
     // renderer.setSize(environment.v.view.width, environment.v.view.height);
     renderer.setClearColor( 0x000000, 0 );
     renderer.autoClear = false;
@@ -377,30 +408,45 @@ function init(){
     // environment.dom.appendChild(renderer.domElement);
     // environment.vars.dom = renderer.domElement;
 
-	layer_one = new LayerSimple();
-
-    layer_one.scene.background = new THREE.Color(environment.v.view.colors.window_background);
-	layer_one.scene.add( light );
-	layer_one.scene.add( ambient_light );
-    layer_one.scene.add( environment.v.model );
-
-
     environment.dom.appendChild(renderer.domElement);
 
     stats = new Stats;
-
     if(environment.v.stats){
         stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
         environment.dom.appendChild( stats.dom );
     }
 
+	layer_one = new LayerSimple();
+    layer_one.scene.background = new THREE.Color(environment.v.view.colors.window_background);
+	layer_one.scene.add( light );
+	layer_one.scene.add( ambient_light );
+    layer_one.scene.add( environment.v.model );
+
     environment.layers.push(layer_one);
+
+    if(environment.v.model_overlay){
+
+        const fxaaPass = new ShaderPass( FXAAShader );
+        fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( environment.w * 2 );
+        fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( environment.h * 2 );
+
+        overlay_composer = new EffectComposer( renderer );
+        layer_two = new LayerComplex(controls.cam.camera);
+        layer_two.scene.add( environment.v.model_overlay );
+        environment.layers.push(layer_two);
+
+        overlay_composer.addPass( layer_two.renderPass );
+        overlay_composer.addPass( fxaaPass );
+        overlay_composer.addPass( layer_two.shaderPass );
+
+    }
+
 
     //controls.reset();
     window.addEventListener('resize', resize);
 }
 function post_init(type='screen') {
-    console.log('post_init check 2323');
+    console.log('post_init check 0');
     // register_event(type);
     // environment.controls.update(events.vars.callback[type].meta, environment.v.model);
     environment.controls.cam.run();
@@ -408,12 +454,22 @@ function post_init(type='screen') {
 function render(a) {
     renderer.clear();
     renderer.render(environment.layers[0].scene, environment.controls.cam.camera);
+    if(environment.v.model_overlay) {
+        //renderer.clearDepth();
+        // environment.v.model.updateMatrixWorld();
+        // environment.v.model.updateMatrix();
+
+        environment.v.model_overlay.matrix.copy(environment.v.model.matrix);
+        environment.v.model_overlay.position.copy(environment.v.model.position);
+
+        overlay_composer.render();
+    }
 }
 function animate(f) {
     stats.begin();
     environment.frame = requestAnimationFrame(animate);
-    render(f);
     if(environment.v.animation_callback !== null) environment.v.animation_callback(f);
+    render(f);
     stats.end();
 }
 function resize(){

@@ -330,6 +330,14 @@ const controls = {
 
         model.updateMatrix();
         model.updateMatrixWorld();
+        
+        if(environment.v.model_overlay) {
+            environment.v.model_overlay.matrix.copy(environment.v.model.matrix);
+            environment.v.model_overlay.position.copy(environment.v.model.position);
+            environment.v.model_overlay.updateMatrix();
+            environment.v.model_overlay.updateMatrixWorld();
+        }
+
         // controls.cam.run();
     },
     reset(){
@@ -459,8 +467,7 @@ function render(a) {
         // environment.v.model.updateMatrixWorld();
         // environment.v.model.updateMatrix();
 
-        environment.v.model_overlay.matrix.copy(environment.v.model.matrix);
-        environment.v.model_overlay.position.copy(environment.v.model.position);
+
 
         overlay_composer.render();
     }

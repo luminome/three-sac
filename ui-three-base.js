@@ -468,8 +468,9 @@ function render(a) {
 function animate(f) {
     stats.begin();
     environment.frame = requestAnimationFrame(animate);
-    if(environment.v.animation_callback !== null) environment.v.animation_callback(f);
     render(f);
+    if(environment.v.animation_callback !== null) environment.v.animation_callback(f);
+
     stats.end();
 }
 function resize(){

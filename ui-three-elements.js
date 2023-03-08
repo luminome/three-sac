@@ -328,7 +328,6 @@ const elements = {
         });
         return new THREE.Line(geometry, material);
     },
-
     ray_special(){
         const vertices = [
             -1,0,0,

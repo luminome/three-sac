@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import {scene} from "./three-sac";
 import {set_buffer_at_index} from "./ui-util";
 
 const directions = {
@@ -68,7 +67,7 @@ const labels = {
         y:[0,100]
     },
     object: new THREE.Group(),
-    label(format){
+    label(){
         function render(cam_quaternion){
             L.mesh.quaternion.copy(cam_quaternion);
         }
@@ -117,20 +116,13 @@ const labels = {
 
             if(L.texture) L.texture.needsUpdate = true;
 
-
-
             if(L.ready && fmt.dynamic !== null){
-                // L.object.updateMatrix();
-                // L.object.updateMatrixWorld();
                 vc.a.copy(fmt.dynamic.anchor);
-                // vc.b.copy(L.object.position);
                 L.object.worldToLocal(vc.a);
                 vc.b.copy(vc.a).normalize().multiplyScalar(-fmt.tick_offset);
                 vc.c.copy(vc.a).normalize().multiplyScalar(-fmt.dynamic.offset);
-                // L.object.worldToLocal(vc.b);
                 set_buffer_at_index(L.line.geometry.attributes.position.array, 0, vc.b.toArray());
                 set_buffer_at_index(L.line.geometry.attributes.position.array, 1, vc.c.toArray());
-
                 L.mesh.position.copy(vc.b);
                 L.line.geometry.attributes.position.needsUpdate = true;
             }
@@ -175,17 +167,12 @@ const labels = {
                 L.object.add(L.line);
             }
 
-            //console.log(L.dims);
             L.texture = new THREE.Texture(L.canvas);
-            //L.texture.minFilter = THREE.LinearFilter;
             L.texture.repeat.set(L.dims[0], L.dims[1]);
             L.texture.offset.y = 1.0-L.dims[1];
             L.texture.needsUpdate = true;
 
             const geometry = new THREE.PlaneGeometry(L.dims[0], L.dims[1]);
-            // const tL = 1;
-            // const uva = Float32Array.from([0, tL, tL, tL, 0, 0, tL*2, 0]);
-            // geometry.setAttribute('uv', new THREE.BufferAttribute(uva,2));
 
             const material = new THREE.MeshBasicMaterial({
                 color: 0xFFFFFF,
@@ -213,6 +200,7 @@ const labels = {
 
             //console.log(L);
         }
+
         const L = {
             ready: false,
             dims: [0,0],
@@ -255,16 +243,12 @@ const labels = {
             const divisions = Math.abs(label_format.range.min-label_format.range.max);
             const spread = Math.abs(label_format.range.start_value-label_format.range.end_value);
 
-
-
-            console.log(divisions,spread);
-
             for (let n = label_format.range.min, i = 0; n <= label_format.range.max; n += label_format.range.interval, i++) {
                 label_format.text_array = [{
                     text:label_format.range.start_value+((i*label_format.range.interval)*(spread/divisions)),
                     size:label_format.range.size
                 }];
-                const label = labels.label(label_format);
+                const label = labels.label();
                 label.look = label_format.look_at_camera;
                 label.init(label_format);
 
@@ -280,20 +264,9 @@ const labels = {
                 labels.groups[label_format.name].push(label);
                 labels.all.push(label);
             }
-            // for (let n = labels.bounds[axis][0]; n <= labels.bounds[axis][1]; n += interval) {
-            //     const label = labels.label(n, tick);
-            //     label.init();
-            //     const interval_n = Math.abs(labels.bounds[axis][0]) + n;
-            //     const interval_scale = labels.bounds[axis][0] === 0 ? labels.bounds[axis][1] / df.model.bounds[axis] : Math.abs(labels.bounds[axis][0]) / df.model.bounds[axis];
-            //     label.look = do_look;
-            //     label.object.position.copy(origin);
-            //     label.object.position[axis] = interval_n / interval_scale;
-            //     labels.object.add(label.object);
-            //     labels.groups[axis].push(label);
-            //     labels.all.push(label);
-            // }
+
         }else{
-            const label = labels.label(label_format);
+            const label = labels.label();
             label.look = label_format.look_at_camera;
             label.init(label_format);
 
@@ -312,59 +285,21 @@ const labels = {
             return label;
 
         }
-    },
-
-    make_label_object(text){
-        //
-        // labels.bounds.y[1] = df.model.data_max;
-        //
-        // vc.a.set(0.0,0.0,(df.model.bounds.z*2.0)+1.0);
-        // labels.render('x', 30.0, vc.a, 'I', true);
-        //
-        // vc.a.set(-1.0,0.0,0.0);
-        // labels.render('z', 15.0, vc.a, 'R', true);
-        //
-        // vc.a.set(df.model.bounds.x+1.0,0.0,(df.model.bounds.z*2.0));
-        // labels.render('y', 20.0, vc.a, 'L', true);
-        //
-        // vc.a.set(df.model.bounds.x,df.model.bounds.y+1.0,0.0);
-        // labels.render(null, null, vc.a, 'B', 'GMT');
-        //
-        // vc.a.set(0.0,df.model.bounds.y+1.0,0.0);
-        // labels.render(null, null, vc.a, 'B', 'GMT+24');
-        //
-        // vc.a.set(df.model.bounds.x+1.0, 0.0, df.model.bounds.z);
-        // labels.render(null, null, vc.a, 'L', 'EQUATOR', false, 'up');
-        //
-        // vc.a.set((df.model.bounds.x/2.0),df.model.bounds.y+1.0,0.0);
-        // labels.render(null, null, vc.a, 'B', 'NORTH', false);
-        //
-        // vc.a.set((df.model.bounds.x/2.0),0.0,(df.model.bounds.z*2.0)+2.0);
-        // labels.render(null, null, vc.a, null, 'ºEAST', false, 'up');
-        //
-        // vc.a.set(df.model.bounds.x+2.0,df.model.bounds.y/2.0,(df.model.bounds.z*2.0));
-        // labels.render(null, null, vc.a, null, 'CTIPe', false);
-        //
-        // df.model.world_bounds.add(labels.object);
-        //
-        // labels.init = true;
-        //
-        // console.log(labels.groups);
-    },
+    }
 }
 
-const plane_text = (line_height, style, resolution, names='show-names') => {
+const trace = () => {
 
     function get_text(){
         const lines = [];
-        P.watch.map(o =>{
+        T.watch.map(o =>{
             if(o.hasOwnProperty('formatted')){
                 o.lines.map(l =>{
                     lines.push(l);
                 });
             } else {
                 Object.entries(o).map(v => {
-                    let str = P.names === 'show-names' ? `${v[0]}:` : '';
+                    let str = T.names === 'show-names' ? `${v[0]}:` : '';
                     if (typeof (v[1]) === 'number') {
                         str += `${v[1] === null ? 'null' : v[1].toFixed(2)}`;
                     } else {
@@ -373,87 +308,32 @@ const plane_text = (line_height, style, resolution, names='show-names') => {
                     lines.push({text: str});
                 });
             }
-            lines.push({text:'break'});
+            lines.push({text:'break', 'size': 0.1});
         })
         return lines;
     }
 
-    function init(){
-        const g = P.canvas.getContext('2d');
-        P.canvas.width = resolution;
-        P.canvas.height = resolution;
-        g.fillStyle = '#000000';
-        g.fillRect(0, 0, P.canvas.width, P.canvas.height);
-        P.texture = new THREE.Texture(P.canvas);
-
-        const s_geometry = new THREE.PlaneGeometry(config.model_w, config.model_w);
-
-        const s_material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            transparent: true,
-            map: P.texture,
-            blending: THREE.AdditiveBlending,
-            depthTest: true,
-            depthWrite: false
-        });
-
-        P.plane_object = new THREE.Mesh(s_geometry, s_material);
-
-    }
-
-    function trace(){
-        const lines = P.get_text();
+    function get_trace(){
+        // check if same data as before
+        const lines = T.get_text();
         const ref = lines.map(l=>l.text).join('-');
-        if(ref === P.memory) return;
-
-        //make bitmap
-        const g = P.canvas.getContext('2d');
-
-        g.fillStyle = '#000000';
-        g.fillRect(0, 0, P.canvas.width, P.canvas.height);
-        g.fillStyle = 'white';
-        let y_pos = 0;
-
-
-        lines.map((L,n) => {
-            const l_height = L.size ? L.size : P.line_height;
-            g.font = `${l_height}px heavy_data Helvetica`;
-            g.textAlign = L.align ? L.align : 'left';
-            const asc = g.measureText(L.text).fontBoundingBoxAscent;
-            const hgt = g.measureText(L.text).fontBoundingBoxDescent;
-
-            y_pos += asc+hgt;//l_height;
-            const l_start = P.style === 'bottom-up' ? P.canvas.height-(lines.length*l_height) : 0.0;
-            g.fillStyle = L.color ? L.color : 'white';
-            if(L.text === 'break'){
-                if(n !== lines.length-1){
-                    g.fillRect(0, l_start+(y_pos), P.canvas.width, 2.0);
-                }
-            }else{
-                g.fillText(L.text, g.textAlign === 'left' ? 0.0 : P.canvas.width , l_start+(y_pos-hgt));
-            }
-        });
-
-        P.texture.needsUpdate = true;
-        P.memory = ref;
+        if(ref === T.memory) return;
+        T.memory = ref;
+        return lines;
     }
 
-    const P = {
-        plane_object: null,
+    const T = {
         memory: null,
         watch: null,
-        texture: null,
-        canvas: document.createElement('canvas'),
-        line_height: line_height,
-        style: style,
-        names:names,
+        names: 'show-names',
         get_text,
-        init,
-        trace
+        get_trace
     }
 
-    return P;
+    return T
 }
 
 
-export default labels;
+
+
+export {labels, trace};

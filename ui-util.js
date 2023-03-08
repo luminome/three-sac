@@ -1,4 +1,3 @@
-
 export function formatBytes(bytes, decimals = 2) {
     if (!+bytes) return '0 Bytes';
     const k = 1000; // 1024
@@ -17,11 +16,6 @@ export function formatMs(ms, decimals = 2) {
     if(ms >= 60000) i = 2;
     return `${i === 0 ? ms : (ms/scales[i]).toFixed(dm)} ${sizes[i]}`;
 }
-export const average = array => array.reduce((a, b) => a + b) / array.length;
-export const deg_to_rad = deg => deg*Math.PI/180;
-export const rad_to_deg = rad => rad*180/Math.PI;
-export const color_to_hex = color => Number(`0x${color.toString().slice(1,color.length)}`);
-export const hex_to_color = color => Number(`#${color.toString().slice(2,color.length)}`);
 export function obj_to_download(content, filename, automatic=false) {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(content));
     const a = document.createElement('a') // Create "a" element
@@ -36,6 +30,17 @@ export function obj_to_download(content, filename, automatic=false) {
         return a;
     }
 }
+
+export const average = array => array.reduce((a, b) => a + b) / array.length;
+
+export const deg_to_rad = deg => deg*Math.PI/180;
+
+export const rad_to_deg = rad => rad*180/Math.PI;
+
+export const color_to_hex = color => Number(`0x${color.toString().slice(1,color.length)}`);
+
+export const hex_to_color = color => Number(`#${color.toString().slice(2,color.length)}`);
+
 export const get_buffer_at_index = (obj, index) => {
     return [
         obj[index*3],
@@ -43,6 +48,7 @@ export const get_buffer_at_index = (obj, index) => {
         obj[index*3+2]
     ]
 }
+
 export const set_buffer_at_index = (obj, index, array) => {
     obj[index*3] = array[0];
     obj[index*3+1] = array[1];
@@ -213,14 +219,6 @@ export const coords_from_array = (array, add_z = 0.0, two_d = false) => {
     return coords;
 }
 
-// export const shape_from_array = (array) =>{
-//     const exterior_points = [];
-//     for (let p = 0; p < array.length; p += 2) {
-//         exterior_points.push(new THREE.Vector2(array[p]*1.0, array[p + 1]*1.0));
-//     }
-//     return new THREE.Shape(exterior_points);
-// }
-
 export const to_lexical_range = (numbers, months_str, type=null) => {
 	//http://jsfiddle.net/sandro_paganotti/4zx73csv/1/
     const sorted = numbers.sort(function(a,b){return a-b;});
@@ -266,4 +264,27 @@ export const r_sum = (arr, modu, s = 0) => {
 
 export const title_case = (str) => {
   return str.toLowerCase().replace(/(^|\s)\S/g, s => s.toUpperCase());
+}
+
+export const timer = (var_name) => {
+
+    function start(){
+        T.T1 = Date.now();
+        return this;
+    }
+
+    function stop(){
+        T.T2 = Date.now() - T.T1;
+        return T.T2;
+    }
+
+    const T = {
+        var_name: var_name,
+        T1: 0.0,
+        T2: 0.0,
+        start,
+        stop
+    }
+
+    return T
 }

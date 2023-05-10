@@ -509,7 +509,6 @@ const environment = {
         environment.v = config_vars;
         environment.dom = dom;
         environment.layers = [];
-        environment.controls.cam.constrain_rotation = config_vars.constrain_rotation ? config_vars.constrain_rotation : true;
         init();
         post_init();
         animate();

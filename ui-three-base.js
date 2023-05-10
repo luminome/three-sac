@@ -299,6 +299,7 @@ const controls = {
 
         if (e_meta.roto_x || e_meta.roto_y) {
             controls.cam.cube.rotateOnWorldAxis(y_up, e_meta.roto_x);
+            //if(environment.v.constrain_rotation){
             if(controls.cam.constrain_rotation){
                 if(controls.cam.constrain_angle+e_meta.roto_y < (Math.PI*0.75) && controls.cam.constrain_angle+e_meta.roto_y > (Math.PI*0.25)){
                     controls.cam.cube.rotateX(e_meta.roto_y);
@@ -330,7 +331,7 @@ const controls = {
 
         model.updateMatrix();
         model.updateMatrixWorld();
-        
+
         if(environment.v.model_overlay) {
             environment.v.model_overlay.matrix.copy(environment.v.model.matrix);
             environment.v.model_overlay.position.copy(environment.v.model.position);
@@ -508,6 +509,7 @@ const environment = {
         environment.v = config_vars;
         environment.dom = dom;
         environment.layers = [];
+        environment.cam.constrain_rotation = config_vars.constrain_rotation;
         init();
         post_init();
         animate();

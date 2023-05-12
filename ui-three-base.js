@@ -403,10 +403,11 @@ function init(){
     });
 
     renderer.localClippingEnabled = true;
+    
+
     controls.cam.run();
-    resize();
+    
     renderer.setPixelRatio(1);
-    // renderer.setSize(environment.v.view.width, environment.v.view.height);
     renderer.setClearColor( 0x000000, 0 );
     renderer.autoClear = false;
 
@@ -418,6 +419,8 @@ function init(){
     // environment.vars.dom = renderer.domElement;
 
     environment.dom.appendChild(renderer.domElement);
+    resize();
+
 
     stats = new Stats;
     if(environment.v.stats){
@@ -487,6 +490,7 @@ function resize(){
 
     environment.w = dims.width;//window.innerWidth;
     environment.h = dims.height;//window.innerHeight;
+
     renderer.setSize(environment.w, environment.h);
     controls.cam.camera.aspect = environment.w / environment.h;
     controls.cam.camera.updateProjectionMatrix();

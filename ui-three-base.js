@@ -482,8 +482,11 @@ function animate(f) {
     stats.end();
 }
 function resize(){
-    environment.w = window.innerWidth;
-    environment.h = window.innerHeight;
+
+    const dims = environment.dom.getBoundingClientRect();
+
+    environment.w = dims.width;//window.innerWidth;
+    environment.h = dims.height;//window.innerHeight;
     renderer.setSize(environment.w, environment.h);
     controls.cam.camera.aspect = environment.w / environment.h;
     controls.cam.camera.updateProjectionMatrix();

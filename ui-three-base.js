@@ -313,7 +313,10 @@ const controls = {
         if (e_meta.delta_x || e_meta.delta_y) {
             controls.v.user.mouse.new_down.copy(controls.v.user.mouse.plane_pos);
             controls.v.user.mouse.actual.copy(controls.v.user.mouse.new_down.sub(controls.v.user.mouse.last_down));
-            model.position.copy(controls.v.user.mouse.actual.add(controls.v.user.mouse.origin_pos));
+            
+            if(environment.v.drag_enabled){
+                model.position.copy(controls.v.user.mouse.actual.add(controls.v.user.mouse.origin_pos));
+            }
         }
 
         if (e_meta.scale_z) {
@@ -323,9 +326,11 @@ const controls = {
                 controls.cam.base_pos.z = controls.cam.max_zoom;
             } else {
                 controls.cam.base_pos.multiplyScalar(e_meta.scale_z);
-                util_v.copy(controls.v.user.mouse.plane_pos).multiplyScalar(1 - e_meta.scale_z);
-                controls.v.user.mouse.plane_pos.sub(util_v);
-                model.position.sub(util_v);
+                if(environment.v.drag_enabled){
+                    util_v.copy(controls.v.user.mouse.plane_pos).multiplyScalar(1 - e_meta.scale_z);
+                    controls.v.user.mouse.plane_pos.sub(util_v);
+                    model.position.sub(util_v);
+                }
             }
         }
 
